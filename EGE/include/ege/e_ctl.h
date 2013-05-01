@@ -213,8 +213,8 @@ public:
 		return m_h;
 	}
 
-	int  addchild(egeControlBase* pChild);
-	int  delchild(egeControlBase* pChild);
+	int addchild(egeControlBase* pChild);
+	int delchild(egeControlBase* pChild);
 	void draw(PIMAGE pimg);
 	void update();
 	void mouse(int x, int y, int flag);
