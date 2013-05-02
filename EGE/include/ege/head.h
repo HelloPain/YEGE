@@ -403,6 +403,9 @@ struct _graph_setting
 	float
 	_get_FPS(int);
 
+	key_msg
+	_getkey();
+
 	int
 	_getkey_p();
 
@@ -420,6 +423,12 @@ struct _graph_setting
 
 	void
 	_delay_update();
+
+	void
+	_flushkey();
+
+	int
+	_keystate(int);
 
 	void
 	_on_paint(::HWND);
