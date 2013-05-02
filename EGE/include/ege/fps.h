@@ -1,4 +1,7 @@
-﻿#pragma once
+﻿#ifndef Inc_ege_fps_h_
+#define Inc_ege_fps_h_
+
+#include "ege/e_ctl.h"
 
 namespace ege
 {
@@ -42,4 +45,6 @@ public:
 };
 
 } // namespace ege
+
+#endif
 
