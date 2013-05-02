@@ -418,6 +418,9 @@ struct _graph_setting
 	void
 	_set_visualpage(int);
 
+	int
+	_dealmessage(bool);
+
 	void
 	_delay_ms(long);
 
@@ -441,9 +444,11 @@ struct _graph_setting
 
 	int
 	_update();
+
+	int
+	_waitdealmessage();
 };
 
-int dealmessage(_graph_setting* pg, bool force_update);
 void guiupdate(_graph_setting* pg, egeControlBase*& root);
 int getflush();
 
