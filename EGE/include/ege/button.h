@@ -1,6 +1,7 @@
 #ifndef Inc_ege_button_h_
 #define Inc_ege_button_h_
 
+#include "ege/ctl.h"
 #include <algorithm>
 
 #ifdef DEBUG
@@ -27,7 +28,8 @@ public:
 	 *
 	 * @return 0
 	 */
-	virtual int  onKeyDown(int key, int flag)
+	virtual int
+	onKeyDown(int key, int)
 	{
 		if((key == 13) || (key == 32))
 		{
@@ -44,7 +46,8 @@ public:
 	 *
 	 * @return 0
 	 */
-	virtual int  onKeyUp(int key, int flag)
+	virtual int
+	onKeyUp(int key, int)
 	{
 		if(((key == 13) || (key == 32)) && _pushed)
 		{
@@ -56,9 +59,7 @@ public:
 				}
 			}
 			else
-			{
 				onClick();
-			}
 		}
 		_pushed = false;
 		redraw();
