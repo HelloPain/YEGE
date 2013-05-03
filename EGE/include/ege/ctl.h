@@ -55,12 +55,12 @@ public:
 		return 0;
 	}
 	// 屏幕更新后会被调用，用于更新逻辑
-	virtual int  onUpdate()
+	virtual int onUpdate()
 	{
 		return 0;
 	}
 	// 以下GetFocus在要获得焦点时调用，返回值一般返回0表示获取键盘输入焦点，返回非0放弃获得输入焦点
-	virtual int  onGetFocus()
+	virtual int onGetFocus()
 	{
 		return 0;
 	}
