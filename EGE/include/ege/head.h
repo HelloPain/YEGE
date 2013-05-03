@@ -419,6 +419,9 @@ struct _graph_setting
 	_flushkey();
 
 	int
+	_kbhit_ex(int);
+
+	int
 	_keystate(int);
 
 	void
@@ -426,6 +429,12 @@ struct _graph_setting
 
 	void
 	_on_repaint(::HWND, ::HDC);
+
+	int
+	_peekkey();
+
+	int
+	_peekallkey(int);
 
 	int
 	_redraw_window(::HDC);
