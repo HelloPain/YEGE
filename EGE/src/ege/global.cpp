@@ -3,6 +3,7 @@
 #include "ege/time.h" // for delay_ms;
 #include "ege/ctl.h"
 #include "head.h"
+#include <gdiplus.h>
 #include <windows.h>
 #include <memory> // for std::unique_ptr;
 #include <functional> // for std::bind;
