@@ -1270,5 +1270,5 @@ get_global_state()
 
 _graph_setting& graph_setting(get_global_state());
 
-} // namespace ege
+} // namespace ege;
 

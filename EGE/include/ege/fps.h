@@ -44,7 +44,7 @@ public:
 	}
 };
 
-} // namespace ege
+} // namespace ege;
 
 #endif
 

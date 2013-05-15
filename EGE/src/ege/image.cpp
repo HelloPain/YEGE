@@ -3084,4 +3084,4 @@ ege_enable_aa(bool enable, IMAGE* pimg)
 	CONVERT_IMAGE_END;
 }
 
-} // namespace ege
+} // namespace ege;
