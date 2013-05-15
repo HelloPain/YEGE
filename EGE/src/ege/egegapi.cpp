@@ -11,12 +11,6 @@
 namespace ege
 {
 
-bool
-is_run()
-{
-	return graph_setting._is_run();
-}
-
 void
 setactivepage(int page)
 {
