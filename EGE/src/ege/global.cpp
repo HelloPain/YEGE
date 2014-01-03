@@ -158,10 +158,10 @@ _graph_setting::_flushkey()
 {
 	EGEMSG msg;
 
-	if(msgkey_queue->empty())
+	if(msgkey_queue.empty())
 		_dealmessage(false);
-	if(!msgkey_queue->empty())
-		while(msgkey_queue->pop(msg))
+	if(!msgkey_queue.empty())
+		while(msgkey_queue.pop(msg))
 			;
 }
 
@@ -170,10 +170,10 @@ _graph_setting::_flushmouse()
 {
 	EGEMSG msg;
 
-	if(msgmouse_queue->empty())
+	if(msgmouse_queue.empty())
 		_dealmessage(false);
-	if(!msgmouse_queue->empty())
-		while(msgmouse_queue->pop(msg))
+	if(!msgmouse_queue.empty())
+		while(msgmouse_queue.pop(msg))
 			;
 }
 
@@ -196,7 +196,7 @@ _graph_setting::_getch_ex(int flag)
 				key = _getkey_p();
 				if(key)
 				{
-					msg = msgkey_queue->last();
+					msg = msgkey_queue.last();
 					if(dw < msg.time + 1000)
 					{
 						int ogn_key = key;
@@ -226,10 +226,10 @@ _graph_setting::_getflush()
 	EGEMSG msg;
 	int lastkey = 0;
 
-	if(msgkey_queue->empty())
+	if(msgkey_queue.empty())
 		_dealmessage(false);
-	if(!msgkey_queue->empty())
-		while(msgkey_queue->pop(msg))
+	if(!msgkey_queue.empty())
+		while(msgkey_queue.pop(msg))
 			if(msg.message == WM_CHAR)
 				if(msg.message == WM_CHAR)
 					lastkey = int(msg.wParam);
@@ -274,7 +274,7 @@ _graph_setting::_getkey_p()
 {
 	EGEMSG msg;
 
-	while(msgkey_queue->pop(msg))
+	while(msgkey_queue.pop(msg))
 		switch(msg.message)
 		{
 		case WM_CHAR:
@@ -302,7 +302,7 @@ _graph_setting::_getmouse()
 
 	do
 	{
-		msgmouse_queue->pop(msg);
+		msgmouse_queue.pop(msg);
 		if(msg.hwnd)
 		{
 			mmsg.flags |= ((msg.wParam & MK_CONTROL) != 0
@@ -358,7 +358,7 @@ _graph_setting::_getmouse_p()
 {
 	auto msg = EGEMSG();
 
-	msgmouse_queue->pop(msg);
+	msgmouse_queue.pop(msg);
 	return msg;
 }
 #endif
@@ -371,8 +371,6 @@ _graph_setting::_init_graph()
 	dc = hDC;
 	window_dc = hDC;
 	img_timer_update = newimage();
-	msgkey_queue = new thread_queue<EGEMSG>;
-	msgmouse_queue = new thread_queue<EGEMSG>;
 	setactivepage(0);
 	settarget(nullptr);
 	setvisualpage(0);
@@ -644,7 +642,7 @@ _graph_setting::_on_key(::UINT message, unsigned long keycode, ::LPARAM keyflag)
 		if(ret == 0)
 			return;
 	}
-	msgkey_queue->push(EGEMSG{hwnd, message, keycode, keyflag,
+	msgkey_queue.push(EGEMSG{hwnd, message, keycode, keyflag,
 		::GetTickCount(), 0, 0});
 }
 
@@ -761,7 +759,7 @@ _graph_setting::_peekkey()
 {
 	EGEMSG msg;
 
-	while(msgkey_queue->pop(msg))
+	while(msgkey_queue.pop(msg))
 	{
 		if(msg.message == WM_CHAR || msg.message == WM_KEYDOWN)
 		{
@@ -770,7 +768,7 @@ _graph_setting::_peekkey()
 					&& msg.wParam < key_f1) || (msg.wParam >= key_semicolon
 					&& msg.wParam <= key_quote))
 					continue;
-			msgkey_queue->unpop();
+			msgkey_queue.unpop();
 			if(msg.message == WM_CHAR)
 				return KEYMSG_CHAR | (int(msg.wParam) & 0xFFFF);
 			if(msg.message == WM_KEYDOWN)
@@ -791,13 +789,13 @@ _graph_setting::_peekallkey(int flag)
 {
 	EGEMSG msg;
 
-	while(msgkey_queue->pop(msg))
+	while(msgkey_queue.pop(msg))
 	{
 		if((msg.message == WM_CHAR && (flag & KEYMSG_CHAR_FLAG)) ||
 			(msg.message == WM_KEYUP && (flag & KEYMSG_UP_FLAG)) ||
 			(msg.message == WM_KEYDOWN && (flag & KEYMSG_DOWN_FLAG)))
 		{
-			msgkey_queue->unpop();
+			msgkey_queue.unpop();
 			if(msg.message == WM_CHAR)
 				return (KEYMSG_CHAR | (int(msg.wParam) & 0xFFFF));
 			else if(msg.message == WM_KEYDOWN)
@@ -815,11 +813,11 @@ _graph_setting::_peekmouse()
 {
 	auto msg = EGEMSG();
 
-	if(msgmouse_queue->empty())
+	if(msgmouse_queue.empty())
 		_dealmessage(false);
-	while(msgmouse_queue->pop(msg))
+	while(msgmouse_queue.pop(msg))
 	{
-		msgmouse_queue->unpop();
+		msgmouse_queue.unpop();
 		return msg;
 	}
 	return msg;
@@ -869,7 +867,7 @@ void
 _graph_setting::_push_mouse_msg(::UINT message, ::WPARAM wparam,
 	::LPARAM lparam)
 {
-	msgmouse_queue->push(EGEMSG{hwnd, message, wparam, lparam, ::GetTickCount(),
+	msgmouse_queue.push(EGEMSG{hwnd, message, wparam, lparam, ::GetTickCount(),
 		::UINT(mouse_state_m << 2 | mouse_state_r << 1 | mouse_state_l << 0),
 		::UINT()});
 }
@@ -976,8 +974,8 @@ _graph_setting::_update_GUI()
 	using namespace std;
 	using namespace placeholders;
 
-	msgkey_queue->process(bind(&_graph_setting::_process_ui_msg, this, _1));
-	msgmouse_queue->process(bind(&_graph_setting::_process_ui_msg, this, _1));
+	msgkey_queue.process(bind(&_graph_setting::_process_ui_msg, this, _1));
+	msgmouse_queue.process(bind(&_graph_setting::_process_ui_msg, this, _1));
 }
 
 int
