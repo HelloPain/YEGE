@@ -36,7 +36,7 @@ IMAGE::IMAGE()
 	if(img)
 		newimage(img->m_hDC, 1, 1);
 	else
-		newimage(graph_setting.dc, 1, 1);
+		newimage(get_global_state().dc, 1, 1);
 	CONVERT_IMAGE_END;
 }
 
@@ -50,7 +50,7 @@ IMAGE::IMAGE(int width, int height)
 	if(img)
 		newimage(img->m_hDC, width, height);
 	else
-		newimage(graph_setting.dc, width, height);
+		newimage(get_global_state().dc, width, height);
 	CONVERT_IMAGE_END;
 }
 
@@ -78,7 +78,7 @@ void IMAGE::inittest(const wchar_t * strCallFunction) const
 		wchar_t str[60];
 
 		wsprintfW(str, L"Fatal error: read/write at 0x%p. At function '%s'", this, strCallFunction);
-		::MessageBoxW(graph_setting.hwnd, str, L"EGE ERROR message", MB_ICONSTOP);
+		::MessageBoxW(get_global_state().hwnd, str, L"EGE ERROR message", MB_ICONSTOP);
 		::ExitProcess((::UINT)grError);
 	}
 }
@@ -164,7 +164,7 @@ IMAGE::newimage(::HDC hdc, int width, int height)
 		{
 			wchar_t str[60];
 			wsprintfW(str, L"Fatal error: read/write at 0x%08x. At function 'newimage', construct IMAGE* before 'initgraph'?", this);
-			::MessageBoxW(graph_setting.hwnd, str, L"ERROR message", MB_ICONSTOP);
+			::MessageBoxW(get_global_state().hwnd, str, L"ERROR message", MB_ICONSTOP);
 			::ExitProcess((::UINT)grError);
 		}
 	}
@@ -248,7 +248,7 @@ IMAGE::createimage(int width, int height)
 	auto img = CONVERT_IMAGE_CONST(nullptr);
 
 	if(!img)
-		img = graph_setting.img_page[graph_setting.active_page];
+		img = get_global_state().img_page[get_global_state().active_page];
 
 	int ret = newimage(img->m_hDC, width, height);
 
@@ -626,7 +626,7 @@ IMAGE::getimage(const char* pResType, const char* pResName, int, int)
 {
 	inittest(L"IMAGE::getimage");
 
-	auto hrsrc = ::FindResourceA(graph_setting.instance, pResName, pResType);
+	auto hrsrc = ::FindResourceA(get_global_state().instance, pResName, pResType);
 
 	if(hrsrc)
 	{
@@ -682,7 +682,7 @@ int
 IMAGE::getimage(const wchar_t* pResType, const wchar_t* pResName, int, int)
 {
 	inittest(L"IMAGE::getimage");
-	auto hrsrc = ::FindResourceW(graph_setting.instance, pResName, pResType);
+	auto hrsrc = ::FindResourceW(get_global_state().instance, pResName, pResType);
 
 	if(hrsrc)
 	{
@@ -1190,7 +1190,7 @@ IMAGE::imagefilter_blurring_4(int intensity, int alpha, int nXOriginDest,
 {
 	inittest(L"IMAGE::imagefilter_blurring_4");
 
-	::DWORD* buff = graph_setting.g_t_buff;
+	::DWORD* buff = get_global_state().g_t_buff;
 	int x2, y2, ix, iy;
 	::DWORD* pdp, lsum, sumRB, sumG;
 	int ddx, dldx;
@@ -1323,7 +1323,7 @@ IMAGE::imagefilter_blurring_8(
 {
 	inittest(L"IMAGE::imagefilter_blurring_4");
 
-	::DWORD* buff = graph_setting.g_t_buff, lbuf;
+	::DWORD* buff = get_global_state().g_t_buff, lbuf;
 	int x2, y2, ix, iy;
 	::DWORD* pdp, lsum, sumRB, sumG;
 	int ddx, dldx;
