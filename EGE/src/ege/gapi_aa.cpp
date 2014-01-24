@@ -12,7 +12,6 @@ ege_enable_aa(bool enable, IMAGE* pimg)
 	const auto img = CONVERT_IMAGE(pimg);
 
 	img->m_aa = enable;
-	CONVERT_IMAGE_END;
 }
 
 
@@ -31,7 +30,6 @@ ege_line(float x1, float y1, float x2, float y2, IMAGE* pimg)
 		}
 		graphics.DrawLine(&pen, x1, y1, x2, y2);
 	}
-	CONVERT_IMAGE_END;
 }
 
 void
@@ -49,7 +47,6 @@ ege_drawpoly(int numpoints, ege_point* polypoints, IMAGE* pimg)
 		}
 		graphics.DrawLines(&pen, (Gdiplus::PointF*)polypoints, numpoints);
 	}
-	CONVERT_IMAGE_END;
 }
 
 void
@@ -67,7 +64,6 @@ ege_drawcurve(int numpoints, ege_point* polypoints, IMAGE* pimg)
 		}
 		graphics.DrawCurve(&pen, (Gdiplus::PointF*)polypoints, numpoints);
 	}
-	CONVERT_IMAGE_END;
 }
 
 void
@@ -85,7 +81,6 @@ ege_rectangle(float x, float y, float w, float h, IMAGE* pimg)
 		}
 		graphics.DrawRectangle(&pen, x, y, w, h);
 	}
-	CONVERT_IMAGE_END;
 }
 
 void
@@ -103,7 +98,6 @@ ege_ellipse(float x, float y, float w, float h, IMAGE* pimg)
 		}
 		graphics.DrawEllipse(&pen, x, y, w, h);
 	}
-	CONVERT_IMAGE_END;
 }
 
 void
@@ -121,7 +115,6 @@ ege_pie(float x, float y, float w, float h, float stangle, float sweepAngle, IMA
 		}
 		graphics.DrawPie(&pen, x, y, w, h, stangle, sweepAngle);
 	}
-	CONVERT_IMAGE_END;
 }
 
 
@@ -140,7 +133,6 @@ ege_arc(float x, float y, float w, float h, float stangle, float sweepAngle, IMA
 		}
 		graphics.DrawArc(&pen, x, y, w, h, stangle, sweepAngle);
 	}
-	CONVERT_IMAGE_END;
 }
 
 void
@@ -158,7 +150,6 @@ ege_bezier(int numpoints, ege_point* polypoints, IMAGE* pimg)
 		}
 		graphics.DrawBeziers(&pen, (Gdiplus::PointF*)polypoints, numpoints);
 	}
-	CONVERT_IMAGE_END;
 }
 
 
@@ -184,7 +175,6 @@ ege_fillpoly(int numpoints, ege_point* polypoints, IMAGE* pimg)
 			graphics.FillPolygon(&brush, (Gdiplus::PointF*)polypoints, numpoints);
 		}
 	}
-	CONVERT_IMAGE_END;
 }
 
 void
@@ -209,7 +199,6 @@ ege_fillrect(float x, float y, float w, float h, IMAGE* pimg)
 			graphics.FillRectangle(&brush, x, y, w, h);
 		}
 	}
-	CONVERT_IMAGE_END;
 }
 
 void
@@ -234,7 +223,6 @@ ege_fillellipse(float x, float y, float w, float h, IMAGE* pimg)
 			graphics.FillEllipse(&brush, x, y, w, h);
 		}
 	}
-	CONVERT_IMAGE_END;
 }
 
 void
@@ -259,7 +247,6 @@ ege_fillpie(float x, float y, float w, float h, float stangle, float sweepAngle,
 			graphics.FillPie(&brush, x, y, w, h, stangle, sweepAngle);
 		}
 	}
-	CONVERT_IMAGE_END;
 }
 
 
@@ -271,7 +258,6 @@ ege_setpattern_none(IMAGE* pimg)
 	{
 		img->delete_pattern();
 	}
-	CONVERT_IMAGE_END;
 }
 
 void
@@ -288,7 +274,6 @@ ege_setpattern_lineargradient(float x1, float y1, color_t c1, float x2, float y2
 		);
 		img->set_pattern(pbrush, pattern_lineargradient);
 	}
-	CONVERT_IMAGE_END;
 }
 
 void
@@ -308,7 +293,6 @@ ege_setpattern_pathgradient(ege_point center, color_t centercolor,
 		pbrush->SetSurroundColors((Gdiplus::Color*)pointscolor, &colcount);
 		img->set_pattern(pbrush, pattern_pathgradient);
 	}
-	CONVERT_IMAGE_END;
 }
 
 void
@@ -329,7 +313,6 @@ ege_setpattern_ellipsegradient(ege_point center, color_t centercolor,
 		pbrush->SetSurroundColors((Gdiplus::Color*)&color, &count);
 		img->set_pattern(pbrush, pattern_pathgradient);
 	}
-	CONVERT_IMAGE_END;
 }
 
 void
@@ -347,7 +330,6 @@ ege_setpattern_texture(IMAGE* srcimg, float x, float y, float w, float h, IMAGE*
 			img->set_pattern(pbrush, pattern_texture);
 		}
 	}
-	CONVERT_IMAGE_END;
 }
 
 
@@ -371,7 +353,6 @@ ege_setalpha(int alpha, IMAGE* pimg)
 			}
 		}
 	}
-	CONVERT_IMAGE_END;
 }
 
 void
@@ -382,7 +363,6 @@ ege_gentexture(bool gen, IMAGE* pimg)
 	{
 		img->gentexture(gen);
 	}
-	CONVERT_IMAGE_END;
 }
 
 void
@@ -405,7 +385,6 @@ ege_puttexture(IMAGE* srcimg, ege_rect dest, IMAGE* pimg)
 		src.h = (float)srcimg->getheight();
 		ege_puttexture(srcimg, dest, src, img);
 	}
-	CONVERT_IMAGE_END;
 }
 void
 ege_puttexture(IMAGE* srcimg, ege_rect dest, ege_rect src, IMAGE* pimg)
@@ -447,7 +426,6 @@ ege_puttexture(IMAGE* srcimg, ege_rect dest, ege_rect src, IMAGE* pimg)
 			);
 		}
 	}
-	CONVERT_IMAGE_END;
 }
 
 } // namespace ege;
