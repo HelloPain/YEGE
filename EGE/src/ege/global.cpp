@@ -153,7 +153,13 @@ _graph_setting::_graph_setting(int gdriver_n, int* gmode)
 bool
 _graph_setting::_is_run() const
 {
-	return !(exit_window || exit_flag);
+	return !(_is_window_exit() || exit_flag);
+}
+
+bool
+_graph_setting::_is_window_exit() const
+{
+	return exit_window;
 }
 
 void
@@ -193,7 +199,7 @@ _graph_setting::_dealmessage(bool force_update)
 {
 	if(force_update || update_mark_count <= 0)
 		_update();
-	return !exit_window;
+	return !_is_window_exit();
 }
 
 void
@@ -223,7 +229,7 @@ _graph_setting::_flushmouse()
 int
 _graph_setting::_getch_ex(int flag)
 {
-	if(exit_window)
+	if(_is_window_exit())
 		return grNoInitGraph;
 	{
 		int key;
@@ -258,7 +264,7 @@ _graph_setting::_getch_ex(int flag)
 					}
 				}
 			}
-		} while(!exit_window && !exit_flag && _waitdealmessage());
+		} while(!_is_run() && _waitdealmessage());
 	}
 	return 0;
 }
@@ -283,7 +289,7 @@ _graph_setting::_getkey()
 {
 	key_msg ret{0, key_msg_none, 0};
 
-	if(!exit_window)
+	if(!_is_window_exit())
 	{
 		int key = 0;
 
@@ -306,7 +312,7 @@ _graph_setting::_getkey()
 					msg.flags |= key_flag_shift;
 				return msg;
 			}
-		} while(!exit_window && !exit_flag && _waitdealmessage());
+		} while(!_is_run() && _waitdealmessage());
 	}
 	return ret;
 }
@@ -337,7 +343,7 @@ _graph_setting::_getmouse()
 {
 	auto mmsg = mouse_msg();
 
-	if(exit_window)
+	if(_is_window_exit())
 		return mmsg;
 
 	EGEMSG msg;
@@ -390,7 +396,7 @@ _graph_setting::_getmouse()
 			}
 			return mmsg;
 		}
-	} while(!exit_window && !exit_flag && _waitdealmessage());
+	} while(!_is_run() && _waitdealmessage());
 	return mmsg;
 }
 
@@ -453,7 +459,7 @@ _graph_setting::_init_graph_x()
 
 			MSG msg;
 
-			while(!exit_window)
+			while(!_is_window_exit())
 				if(::GetMessage(&msg, {}, 0, 0))
 				{
 					::TranslateMessage(&msg);
@@ -487,7 +493,7 @@ _graph_setting::_init_graph_x()
 int
 _graph_setting::_kbhit_ex(int flag)
 {
-	if(exit_window)
+	if(_is_window_exit())
 		return grNoInitGraph;
 	if(flag == 0)
 		return _peekkey();
@@ -498,7 +504,7 @@ _graph_setting::_kbhit_ex(int flag)
 int
 _graph_setting::_kbmsg()
 {
-	return exit_window ? int(grNoInitGraph) : int(_peekallkey(1));
+	return _is_window_exit() ? int(grNoInitGraph) : int(_peekallkey(1));
 }
 
 int
@@ -514,7 +520,7 @@ _graph_setting::_keystate(int key)
 bool
 _graph_setting::_mousemsg()
 {
-	return exit_window ? false : bool(_peekmouse().hwnd);
+	return _is_window_exit() ? false : bool(_peekmouse().hwnd);
 }
 
 void
@@ -780,7 +786,7 @@ _graph_setting::_show_mouse(bool bShow)
 int
 _graph_setting::_update()
 {
-	if(exit_window)
+	if(_is_window_exit())
 		return grNoInitGraph;
 
 	::HDC hdc;
@@ -854,7 +860,7 @@ _graph_setting::_waitdealmessage()
 		egectrl_root->update();
 	}
 	ege_sleep(1);
-	return !exit_window;
+	return !_is_window_exit();
 }
 
 void
