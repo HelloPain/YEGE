@@ -192,7 +192,7 @@ IMAGE::newimage(::HDC hdc, int width, int height)
 			m_hBmp = bitmap;
 			m_width = width;
 			m_height = height;
-			m_pBuffer = (PDWORD)p_bmp_buf;
+			m_pBuffer = (DWORD*)p_bmp_buf;
 
 			if(b_resize == 0)
 			{
@@ -261,7 +261,7 @@ IMAGE::copyimage(IMAGE* pSrcImg)
 	if(m_width != img->m_width || m_height != img->m_height)
 		ret = newimage({}, img->m_width, img->m_height);
 	if(ret == 0)
-		memcpy(getbuffer(), img->getbuffer(), m_width * m_height * 4); // 4 byte per pixel
+		std::memcpy(getbuffer(), img->getbuffer(), m_width * m_height * 4); // 4 byte per pixel
 }
 
 void
@@ -661,7 +661,7 @@ IMAGE::getimage(const wchar_t* pResType, const wchar_t* pResName, int, int)
 
 		if(!hGlobal || !(pvData = ::GlobalLock(hGlobal)))
 			return grAllocError;
-		::memcpy(pvData, pvRes, dwSize);
+		::std::memcpy(pvData, pvRes, dwSize);
 		::GlobalUnlock(hGlobal);
 		if(S_OK != ::CreateStreamOnHGlobal(hGlobal, TRUE, &pStm))
 			return grNullPointer;
@@ -710,7 +710,7 @@ IMAGE::getimage(void * pMem, long size)
 		{
 			return grAllocError;
 		}
-		memcpy(pvData, pMem, dwSize);
+		std::memcpy(pvData, pMem, dwSize);
 		::GlobalUnlock(hGlobal);
 		if(S_OK != ::CreateStreamOnHGlobal(hGlobal, TRUE, &pStm))
 		{
@@ -2627,7 +2627,7 @@ putimage_rotate(IMAGE* imgdest, IMAGE* imgtexture, int nXOriginDest,
 		_tt[1].p[1].x = 1;
 		_tt[1].p[1].y = 0;
 		_tt[1].p[2] = _tt[0].p[0];
-		memcpy(&_dt, &_tt, sizeof(triangle2d) * 2);
+		std::memcpy(&_dt, &_tt, sizeof(triangle2d) * 2);
 		for(j = 0; j < 2; ++j)
 			for(i = 0; i < 3; ++i)
 			{
@@ -2676,7 +2676,7 @@ putimage_rotatezoom(IMAGE* imgdest, IMAGE* imgtexture, int nXOriginDest,
 		_tt[1].p[1].x = 1;
 		_tt[1].p[1].y = 0;
 		_tt[1].p[2] = _tt[0].p[0];
-		memcpy(&_dt, &_tt, sizeof(triangle2d) * 2);
+		std::memcpy(&_dt, &_tt, sizeof(triangle2d) * 2);
 		for(j = 0; j < 2; ++j)
 			for(i = 0; i < 3; ++i)
 			{
