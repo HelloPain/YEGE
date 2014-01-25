@@ -6,6 +6,8 @@
 namespace ege
 {
 
+using std::unique_ptr;
+
 void
 ege_enable_aa(bool enable, IMAGE* pimg)
 {
@@ -165,9 +167,10 @@ ege_fillpoly(int numpoints, ege_point* polypoints, IMAGE* pimg)
 		{
 			graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
 		}
-		if(img->m_pattern_obj)
+		if(img->m_pattern)
 		{
-			graphics.FillPolygon((Gdiplus::Brush*)img->m_pattern_obj, (Gdiplus::PointF*)polypoints, numpoints);
+			graphics.FillPolygon(img->m_pattern.get(),
+				(Gdiplus::PointF*)polypoints, numpoints);
 		}
 		else
 		{
@@ -189,9 +192,9 @@ ege_fillrect(float x, float y, float w, float h, IMAGE* pimg)
 		{
 			graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
 		}
-		if(img->m_pattern_obj)
+		if(img->m_pattern)
 		{
-			graphics.FillRectangle((Gdiplus::Brush*)img->m_pattern_obj, x, y, w, h);
+			graphics.FillRectangle(img->m_pattern.get(), x, y, w, h);
 		}
 		else
 		{
@@ -213,9 +216,9 @@ ege_fillellipse(float x, float y, float w, float h, IMAGE* pimg)
 		{
 			graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
 		}
-		if(img->m_pattern_obj)
+		if(img->m_pattern)
 		{
-			graphics.FillEllipse((Gdiplus::Brush*)img->m_pattern_obj, x, y, w, h);
+			graphics.FillEllipse(img->m_pattern.get(), x, y, w, h);
 		}
 		else
 		{
@@ -237,9 +240,9 @@ ege_fillpie(float x, float y, float w, float h, float stangle, float sweepAngle,
 		{
 			graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
 		}
-		if(img->m_pattern_obj)
+		if(img->m_pattern)
 		{
-			graphics.FillPie((Gdiplus::Brush*)img->m_pattern_obj, x, y, w, h, stangle, sweepAngle);
+			graphics.FillPie(img->m_pattern.get(), x, y, w, h, stangle, sweepAngle);
 		}
 		else
 		{
@@ -256,7 +259,7 @@ ege_setpattern_none(IMAGE* pimg)
 	const auto img = CONVERT_IMAGE(pimg);
 	if(img)
 	{
-		img->delete_pattern();
+		img->m_pattern.reset();
 	}
 }
 
@@ -266,13 +269,11 @@ ege_setpattern_lineargradient(float x1, float y1, color_t c1, float x2, float y2
 	const auto img = CONVERT_IMAGE(pimg);
 	if(img)
 	{
-		Gdiplus::LinearGradientBrush* pbrush = new Gdiplus::LinearGradientBrush(
-			Gdiplus::PointF(x1, y1),
+		img->m_pattern.reset(new
+			Gdiplus::LinearGradientBrush(Gdiplus::PointF(x1, y1),
 			Gdiplus::PointF(x2, y2),
 			Gdiplus::Color(c1),
-			Gdiplus::Color(c2)
-		);
-		img->set_pattern(pbrush, pattern_lineargradient);
+			Gdiplus::Color(c2)));
 	}
 }
 
@@ -283,15 +284,14 @@ ege_setpattern_pathgradient(ege_point center, color_t centercolor,
 	const auto img = CONVERT_IMAGE(pimg);
 	if(img)
 	{
-		Gdiplus::PathGradientBrush* pbrush = new Gdiplus::PathGradientBrush(
-			(Gdiplus::PointF*)points,
-			count,
-			Gdiplus::WrapModeTile
-		);
+		const auto pbrush(new Gdiplus::PathGradientBrush(
+			(Gdiplus::PointF*)points, count, Gdiplus::WrapModeTile
+		));
+
 		pbrush->SetCenterColor(Gdiplus::Color(centercolor));
 		pbrush->SetCenterPoint(Gdiplus::PointF(center.x, center.y));
 		pbrush->SetSurroundColors((Gdiplus::Color*)pointscolor, &colcount);
-		img->set_pattern(pbrush, pattern_pathgradient);
+		img->m_pattern.reset(pbrush);
 	}
 }
 
@@ -304,32 +304,26 @@ ege_setpattern_ellipsegradient(ege_point center, color_t centercolor,
 	{
 		Gdiplus::GraphicsPath path;
 		path.AddEllipse(x, y, w, h);
-		Gdiplus::PathGradientBrush* pbrush = new Gdiplus::PathGradientBrush(
-			&path
-		);
+
+		const auto pbrush = new Gdiplus::PathGradientBrush(&path);
 		int count = 1;
+
 		pbrush->SetCenterColor(Gdiplus::Color(centercolor));
 		pbrush->SetCenterPoint(Gdiplus::PointF(center.x, center.y));
 		pbrush->SetSurroundColors((Gdiplus::Color*)&color, &count);
-		img->set_pattern(pbrush, pattern_pathgradient);
+		img->m_pattern.reset(pbrush);
 	}
 }
 
 void
-ege_setpattern_texture(IMAGE* srcimg, float x, float y, float w, float h, IMAGE* pimg)
+ege_setpattern_texture(IMAGE* srcimg, float x, float y, float w, float h,
+	IMAGE* pimg)
 {
 	const auto img = CONVERT_IMAGE(pimg);
-	if(img)
-	{
-		if(srcimg->m_texture)
-		{
-			Gdiplus::TextureBrush* pbrush = new Gdiplus::TextureBrush(
-				(Gdiplus::Image*)srcimg->m_texture,
-				Gdiplus::WrapModeTile,
-				x, y, w, h);
-			img->set_pattern(pbrush, pattern_texture);
-		}
-	}
+
+	if(img && srcimg->m_texture)
+		img->m_pattern.reset(new Gdiplus::TextureBrush(
+			srcimg->m_texture.get(), Gdiplus::WrapModeTile, x, y, w, h));
 }
 
 
@@ -398,9 +392,7 @@ ege_puttexture(IMAGE* srcimg, ege_rect dest, ege_rect src, IMAGE* pimg)
 			Gdiplus::Graphics graphics(img->getdc());
 			graphics.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
 			if(img->m_aa)
-			{
 				graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
-			}
 			/*
 			Gdiplus::ImageAttributes ia;
 			Gdiplus::ColorMatrix mx{
@@ -415,15 +407,9 @@ ege_puttexture(IMAGE* srcimg, ege_rect dest, ege_rect src, IMAGE* pimg)
 			ia.SetColorMatrix(&mx);
 			// */
 			//graphics.SetTransform();
-			graphics.DrawImage((Gdiplus::Image*)srcimg->m_texture,
+			graphics.DrawImage(srcimg->m_texture.get(),
 				Gdiplus::RectF(dest.x, dest.y, dest.w, dest.h),
-				src.x,
-				src.y,
-				src.w,
-				src.h,
-				Gdiplus::UnitPixel,
-				{}
-			);
+				src.x, src.y, src.w, src.h, Gdiplus::UnitPixel, {});
 		}
 	}
 }
