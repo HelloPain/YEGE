@@ -33,9 +33,9 @@ IMAGE::IMAGE()
 IMAGE::IMAGE(int width, int height)
 	: m_initflag(IMAGE_INIT_FLAG)
 {
-	const auto img = get_global_state().imgtarget;
+	const auto img = get_pages().imgtarget;
 
-	newimage(img ? img->m_hDC : get_global_state().active_dc, width, height);
+	newimage(img ? img->m_hDC : get_pages().active_dc, width, height);
 }
 
 IMAGE::IMAGE(IMAGE & img)
@@ -226,10 +226,10 @@ IMAGE::createimage(int width, int height)
 {
 	inittest(L"IMAGE::createimage");
 
-	auto img = get_global_state().imgtarget;
+	auto img = get_pages().imgtarget;
 
 	if(!img)
-		img = get_global_state().img_page[get_global_state().active_page];
+		img = &get_pages().get_apage_ref();
 
 	int ret = newimage(img->m_hDC, width, height);
 
@@ -241,7 +241,7 @@ int
 IMAGE::resize(int width, int height)
 {
 	inittest(L"IMAGE::resize");
-	return newimage(get_global_state().imgtarget->m_hDC, width, height);
+	return newimage(get_pages().imgtarget->m_hDC, width, height);
 }
 
 IMAGE&
@@ -261,9 +261,7 @@ IMAGE::copyimage(IMAGE* pSrcImg)
 	if(m_width != img->m_width || m_height != img->m_height)
 		ret = newimage({}, img->m_width, img->m_height);
 	if(ret == 0)
-	{
 		memcpy(getbuffer(), img->getbuffer(), m_width * m_height * 4); // 4 byte per pixel
-	}
 }
 
 void
@@ -281,7 +279,7 @@ IMAGE::getimage(IMAGE* pSrcImg, int srcX, int srcY, int srcWidth, int srcHeight)
 void
 IMAGE::getimage(int srcX, int srcY, int srcWidth, int srcHeight)
 {
-	const auto img = get_global_state().imgtarget;
+	const auto img = get_pages().imgtarget;
 	getimage(img, srcX, srcY, srcWidth, srcHeight);
 }
 
@@ -364,7 +362,7 @@ IMAGE::getimage(const wchar_t* filename, int, int)
 	if(FAILED(hr))
 		return grIOerror;
 
-	const auto img = get_global_state().imgtarget;
+	const auto img = get_pages().imgtarget;
 
 	pPicture->get_Width(&lWidth);
 	lWidthPixels
@@ -620,7 +618,7 @@ IMAGE::getimage(const char* pResType, const char* pResName, int, int)
 		if(FAILED(hr))
 			return grIOerror;
 
-		IMAGE* img(get_global_state().imgtarget);
+		IMAGE* img(get_pages().imgtarget);
 
 		pPicture->get_Width(&lWidth);
 		lWidthPixels = ::MulDiv(lWidth, ::GetDeviceCaps(img->m_hDC, LOGPIXELSX),
@@ -675,7 +673,7 @@ IMAGE::getimage(const wchar_t* pResType, const wchar_t* pResName, int, int)
 		if(FAILED(hr))
 			return grIOerror;
 
-		const auto img = get_global_state().imgtarget;
+		const auto img = get_pages().imgtarget;
 		pPicture->get_Width(&lWidth);
 		lWidthPixels = ::MulDiv(lWidth, ::GetDeviceCaps(img->m_hDC, LOGPIXELSX), 2540);
 		pPicture->get_Height(&lHeight);
@@ -735,7 +733,7 @@ IMAGE::getimage(void * pMem, long size)
 		}
 
 
-		const auto img = get_global_state().imgtarget;
+		const auto img = get_pages().imgtarget;
 		pPicture->get_Width(&lWidth);
 		lWidthPixels = ::MulDiv(lWidth,
 			::GetDeviceCaps(img->m_hDC, LOGPIXELSX), 2540);
