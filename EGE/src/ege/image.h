@@ -87,12 +87,13 @@ public:
 
 	int
 	createimage(int width, int height);
+
 	int
 	resize(int width, int height);
+
 	void
 	copyimage(IMAGE* pSrcImg);
-	void
-	getimage(int srcX, int srcY, int srcWidth, int srcHeight);
+
 	void
 	getimage(IMAGE* pSrcImg, int srcX, int srcY, int srcWidth, int srcHeight);
 	int
@@ -105,6 +106,7 @@ public:
 	getimage(const wchar_t* pResType, const wchar_t* pResName, int zoomWidth = 0, int zoomHeight = 0);
 	int
 	getimage(void* pMem, long size);
+
 	void
 	putimage(int dstX, int dstY, ::DWORD dwRop = SRCCOPY) const;
 	void
@@ -115,6 +117,7 @@ public:
 	putimage(IMAGE* pDstImg, int dstX, int dstY, int dstWidth, int dstHeight, int srcX, int srcY, ::DWORD dwRop = SRCCOPY) const;
 	void
 	putimage(IMAGE* pDstImg, int dstX, int dstY, int dstWidth, int dstHeight, int srcX, int srcY, int srcWidth, int srcHeight, ::DWORD dwRop = SRCCOPY) const;
+
 	int
 	saveimage(const char*  filename);
 	int
@@ -123,6 +126,7 @@ public:
 	getpngimg(FILE* fp);
 	int
 	savepngimg(FILE* fp, int bAlpha);
+
 	int
 	putimage_transparent(
 		IMAGE* imgdest,         // handle to dest
@@ -134,6 +138,7 @@ public:
 		int nWidthSrc = 0,      // width of source rectangle
 		int nHeightSrc = 0      // height of source rectangle
 	);
+
 	int
 	putimage_alphablend(
 		IMAGE* imgdest,         // handle to dest
@@ -145,6 +150,7 @@ public:
 		int nWidthSrc = 0,      // width of source rectangle
 		int nHeightSrc = 0      // height of source rectangle
 	);
+
 	int
 	putimage_alphatransparent(
 		IMAGE* imgdest,         // handle to dest
@@ -157,6 +163,7 @@ public:
 		int nWidthSrc = 0,      // width of source rectangle
 		int nHeightSrc = 0      // height of source rectangle
 	);
+
 	int
 	putimage_withalpha(
 		IMAGE* imgdest,         // handle to dest
@@ -179,6 +186,7 @@ public:
 		int nWidthSrc = 0,      // width of source rectangle
 		int nHeightSrc = 0      // height of source rectangle
 	);
+
 	int
 	imagefilter_blurring_4(
 		int intensity,
@@ -188,6 +196,7 @@ public:
 		int nWidthDest,
 		int nHeightDest
 	);
+
 	int
 	imagefilter_blurring_8(
 		int intensity,
@@ -197,6 +206,7 @@ public:
 		int nWidthDest,
 		int nHeightDest
 	);
+
 	int
 	imagefilter_blurring(
 		int intensity,
@@ -206,6 +216,7 @@ public:
 		int nWidthDest = 0,
 		int nHeightDest = 0
 	);
+
 	int putimage_rotate(
 		IMAGE* imgtexture,
 		int nXOriginDest,
