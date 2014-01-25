@@ -51,6 +51,7 @@ private:
 public:
 	IMAGE();
 	IMAGE(int, int);
+	IMAGE(::HDC, int, int);
 	IMAGE(const IMAGE&);
 	IMAGE(IMAGE&&) ynothrow;
 	~IMAGE();
