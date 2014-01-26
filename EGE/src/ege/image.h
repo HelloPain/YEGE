@@ -21,12 +21,14 @@ namespace ege
 // 定义图像对象
 class IMAGE
 {
-public:
+private:
 	::HDC m_hDC;
-	::HBITMAP  m_hBmp;
+	::HBITMAP m_hBmp;
 	int m_width;
 	int m_height;
 	DWORD* m_pBuffer;
+
+public:
 	color_t m_color;
 	color_t m_fillcolor;
 	bool m_aa = {};
@@ -48,11 +50,6 @@ public:
 	IMAGE&
 	operator=(IMAGE) ynothrow;
 
-private:
-	void
-	inittest(const wchar_t* strCallFunction = {}) const;
-
-public:
 	void
 	swap(IMAGE&) ynothrow;
 
@@ -64,16 +61,19 @@ public:
 	{
 		return m_hDC;
 	}
+
 	int
 	getwidth() const
 	{
 		return m_width;
 	}
+
 	int
 	getheight() const
 	{
 		return m_height;
 	}
+
 	DWORD*
 	getbuffer() const
 	{
