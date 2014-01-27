@@ -6,6 +6,7 @@
 #include <memory> // for std::unique_ptr;
 #include <windows.h>
 #include <gdiplus.h>
+#include <YCLib/Win32GUI.h>
 
 #define CONVERT_IMAGE(pimg) ( ((size_t)(pimg)<0x20 ? ((pimg) ? \
 	(get_pages().img_page[(size_t)(pimg) & 0xF]) \
@@ -18,15 +19,38 @@
 namespace ege
 {
 
+using platform::SPos;
+using platform::SDst;
+using platform::PixelType;
+using YSLib::Drawing::Point;
+using YSLib::Drawing::Size;
+using YSLib::Drawing::Rect;
+using platform_ex::ScreenBuffer;
+
+inline Size
+ToSize(int w, int h)
+{
+	if(w < 0 || h < 0)
+		throw std::invalid_argument("ege::ToSize");
+	return {w, h};
+}
+
+
 // 定义图像对象
 class IMAGE
 {
 private:
+	ScreenBuffer sbuf;
 	::HDC m_hDC;
-	::HBITMAP m_hBmp;
-	int m_width;
-	int m_height;
-	DWORD* m_pBuffer;
+
+	::HBITMAP
+	GetBitmap() const
+	{
+		return sbuf.GetNativeHandle();
+	}
+
+	int
+	Refresh();
 
 public:
 	color_t m_color;
@@ -42,13 +66,20 @@ public:
 
 	IMAGE();
 	IMAGE(int, int);
+	IMAGE(const Size&);
 	IMAGE(::HDC, int, int);
+	IMAGE(::HDC, const Size&);
 	IMAGE(const IMAGE&);
 	IMAGE(IMAGE&&) ynothrow;
 	~IMAGE();
 
 	IMAGE&
 	operator=(IMAGE) ynothrow;
+
+	DefGetterMem(const ynothrow, PixelType*, BufferPtr, sbuf)
+	DefGetter(const ynothrow, SDst, Height, GetSize().Height)
+	DefGetterMem(const ynothrow, const Size&, Size, sbuf)
+	DefGetter(const ynothrow, SDst, Width, GetSize().Width)
 
 	void
 	swap(IMAGE&) ynothrow;
@@ -62,26 +93,22 @@ public:
 		return m_hDC;
 	}
 
-	int
-	getwidth() const
-	{
-		return m_width;
-	}
-
-	int
-	getheight() const
-	{
-		return m_height;
-	}
-
-	DWORD*
+	::DWORD*
 	getbuffer() const
 	{
-		return m_pBuffer;
+		static_assert(sizeof( ::DWORD) == sizeof(platform::PixelType), "");
+		static_assert(yalignof( ::DWORD) == yalignof(platform::PixelType), "");
+
+		return reinterpret_cast< ::DWORD*>(sbuf.GetBufferPtr());
 	}
 
 	int
-	resize(int width, int height);
+	Resize(const Size&);
+	int
+	Resize(int width, int height)
+	{
+		return Resize(ToSize(width, height));
+	}
 
 	void
 	getimage(IMAGE* pSrcImg, int srcX, int srcY, int srcWidth, int srcHeight);
