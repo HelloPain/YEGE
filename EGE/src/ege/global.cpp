@@ -21,8 +21,6 @@
 
 #define EGE_TITLE TEXT("yEGE13.04 ") TEXT("GCC") GCC_VER TEXT(ARCH)
 
-#define RENDER_TIMER_ID     916
-
 namespace ege
 {
 
@@ -379,7 +377,6 @@ _graph_setting::_init_graph_x()
 			//::ReleaseDC(hwnd, window_dc);
 			mouse_show = {};
 			use_force_exit = !(_g_initoption & INIT_NOFORCEEXIT);
-			::SetTimer(hwnd, RENDER_TIMER_ID, 50, {});
 			init_finish = true;
 
 			::MSG msg;
