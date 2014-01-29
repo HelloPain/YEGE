@@ -21,12 +21,15 @@ public:
 		enable({});
 	}
 
-	void onDraw(IMAGE* pimg) const
+	void
+	onDraw(IMAGE* pimg) const
 	{
 		char str[16] = "fps        ", *pstr = str;
 		double fps = getfps() + 0.005;
-		int a = (int)fps, b = (int)((fps - a) * 100);
-		while(*pstr) ++pstr;
+		int a = fps, b = (fps - a) * 100;
+
+		while(*pstr)
+			++pstr;
 		pstr[-1] = (char)(b % 10 + '0');
 		pstr[-2] = (char)(b / 10 + '0');
 		pstr[-3] = '.';

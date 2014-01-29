@@ -92,7 +92,7 @@ public:
 		static_assert(sizeof( ::DWORD) == sizeof(platform::PixelType), "");
 		static_assert(yalignof( ::DWORD) == yalignof(platform::PixelType), "");
 
-		return reinterpret_cast< ::DWORD*>(sbuf.GetBufferPtr());
+		return reinterpret_cast<::DWORD*>(sbuf.GetBufferPtr());
 	}
 
 	int
