@@ -2,16 +2,10 @@
 #define Inc_ege_color_h_
 
 #include "ege/def.h"
-#include <ysbuild.h>
-#include YFM_YCLib_Video
-
-using PROPID = ::ULONG;
+#include "ege/colorbase.h"
 
 namespace ege
 {
-
-using color_t = platform::PixelType;
-
 
 struct ege_colpoint
 {
