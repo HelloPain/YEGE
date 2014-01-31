@@ -131,8 +131,6 @@ public:
 	saveimage(const wchar_t* filename, ImageFormat = ImageFormat::BMP);
 	int
 	getpngimg(std::FILE* fp);
-	int
-	savepngimg(std::FILE* fp, int bAlpha);
 
 	int
 	putimage_transparent(
