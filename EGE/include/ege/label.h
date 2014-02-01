@@ -106,24 +106,17 @@ public:
 			setbkcolor_f(BLACK, filter());
 			cleardevice(filter());
 			if(m_alpha < 0xff)
-			{
-				setcolor(RGB(m_alpha, m_alpha, m_alpha), filter());
-			}
+				setcolor(EGERGB(m_alpha, m_alpha, m_alpha), filter());
 			else
-			{
 				setcolor(0xFFFFFF, filter());
-			}
 			setbkmode(TRANSPARENT, filter());
 			setfont(m_fontheight, 0, m_face, filter());
 			outtextrect(0, 0, getw(), geth(), m_caption, filter());
 		}
-		else
+		else if(m_alpha < 0xff)
 		{
-			if(m_alpha < 0xff)
-			{
-				setbkcolor_f(RGB(m_alpha, m_alpha, m_alpha), filter());
-				cleardevice(filter());
-			}
+			setbkcolor_f(RGB(m_alpha, m_alpha, m_alpha), filter());
+			cleardevice(filter());
 		}
 	}
 protected:
