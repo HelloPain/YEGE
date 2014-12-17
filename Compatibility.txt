@@ -3,7 +3,7 @@
 
 增加 IDE 支持
 ----
- Code::Blocks 。
+Code::Blocks 。
 
 限制实现需求
 ----
@@ -37,7 +37,7 @@
 移除函数 attachHWND 以避免潜在的死锁。
 函数 setrendermode 无效，默认状态统一为 setrendermode(RENDER_MANUAL) ；仅为兼容性保留。
 移除类型 LPCALLBACK_PROC 、 LPMSG_KEY_PROC 、 LPMSG_MOUSE_PROC 、 MSG_KEY_PROC 和 MSG_MOUSE_PROC ，其中 LPCALLBACK_PROC 可用 CALLBACK_PROC* 代替，
- typedef 类型名 color_t 从 unsigned int 改为 YSLib::Drawing::PixelType 。
+typedef 类型名 color_t 从 unsigned int 改为 YSLib::Drawing::PixelType 。
 使用 YCLib 提供的 YSLib::Drawing::MonoType 表示颜色分量。
 使用 YSLib::Drawing::PixelType::Integer 表示颜色对应的整数类型。注意布局同 ::COLORREF ，相对原有实现红色和蓝色分量交换，修复了 <wingdi.h> 中 RGB 等宏的参数红色和蓝色分量相反的问题。
 宏 RGBTOBGR 、 EGERGB 、 EGERGBA 、 EGEARGB 、 EGEACOLOR 、 EGECOLORA 、 EGEGET_R 、 EGEGET_G 、 EGEGET_B 、 EGEGET_A 、 EGEGRAY 、 EGEGRAYA 和 EGEAGRAY 变更为 ege 命名空间内的函数。
@@ -49,7 +49,7 @@
 
 向后（源代码）兼容但不保证向前兼容原始实现的接口
 ----
- delay_fps 和 delay_jfps 仅保留 double 重载版本。
+delay_fps 和 delay_jfps 仅保留 double 重载版本。
 部分函数（包括 mousepos 等）加入断言检查参数。
 绘图环境设置、控件和音乐 API 补充遗漏的 EGEAPI 以便作为 DLL 使用，但 fps 类仅头文件实现而例外。
 控件基类 egeControlBase 的析构函数保证为 virtual 。
@@ -58,7 +58,7 @@
 
 兼容接口和实现调整
 ----
- Windows SDK 类型 CHAR 、 WCHAR 、 LPSTR 、 LPCSTR 、 LPWSTR 、 LPCWSTR 、 PVOID 、 LPVOID 和 LPPOINT 分别用 wchar_t 、 char* 、 const char* 、 wchar_t* 、 const wchar_t* 、 void* 、 void* 和 ::POINT* 代替。
+Windows SDK 类型 CHAR 、 WCHAR 、 LPSTR 、 LPCSTR 、 LPWSTR 、 LPCWSTR 、 PVOID 、 LPVOID 和 LPPOINT 分别用 wchar_t 、 char* 、 const char* 、 wchar_t* 、 const wchar_t* 、 void* 、 void* 和 ::POINT* 代替。
 所有同名 typedef 结构体名称或 typedef 匿名结构体调整为非 typedef 结构体类型名。
 宏 EGEAPI 调整至返回值前；移除函数形参中不必要的 const 。
 移除宏 EGE_DEPRECATED 。
@@ -86,7 +86,7 @@
 取消手动设置 exit_window 状态，改用 UI 线程状态表示；移除无用的 exit_flag 。
 类型 PDWORD 用 DWORD* 代替。
 类 IMAGE ：修复复制构造；新增交换、转移构造和统一赋值操作；移除成员初始化检查；封装部分成员保证不可在外部修改；使用 YFramework 的 platform_ex::ScreenBuffer 代替 ::HBITMAP 实现。
- CONVERT_IMAGE 和 CONVERT_IMAGE_CONST 宏改用内联函数实现，且当输入除空指针值外返回原值。
+CONVERT_IMAGE 和 CONVERT_IMAGE_CONST 宏改用内联函数实现，且当输入除空指针值外返回原值。
 命名空间作用域静态函数和对象去除 static 并使用未命名命名空间代替。
 移除不符合标准的保留名称 _RGBtoHSL 和 _HSLtoRGB 的使用。
 使用 YSLib::Drawing 实现函数 rgb2hsl 和 hsl2rgb ，不保证精度完全一致。
@@ -97,16 +97,17 @@
 
 实现质量(QoI)
 ----
- EGE 库中加入 -Wall -Wextra -Wmissing-include-dirs -Wzero-as-null-pointer-constant -pedantic-errors 保证无错误和警告。
- EGE 代码 -Wold-style-cast 保证无警告（因为依赖库头文件问题没有加入此选项）。
+EGE 库中加入 -Wall -Wextra -Wmissing-include-dirs -Wzero-as-null-pointer-constant -pedantic-errors 保证无错误和警告。
+EGE 代码 -Wold-style-cast 保证无警告（因为依赖库头文件问题没有加入此选项）。
 其它项目中加入 -Wall -Wextra -pedantic 保证无警告。
 
 非外部依赖项代码风格和格式
 ----
- "{" 之前不邻接空格。
+"{" 之前不邻接空格。
 指针和空指针的相等比较用 ! 操作符代替，不等比较使用 bool 转换代替。
 尽可能使用 {} 代替 NULL 或其它形式的空指针常量；无法使用 {} 的用 nullptr 代替。
 字面量 false 尽可能用 {} 代替。
+主函数不使用冗余形参和返回语句。
 
 标准库使用
 ----
