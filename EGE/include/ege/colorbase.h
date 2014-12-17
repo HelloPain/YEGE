@@ -10,7 +10,7 @@ using PROPID = ::ULONG;
 namespace ege
 {
 
-using color_t = YSLib::Drawing::PixelType;
+using color_t = YSLib::Drawing::Pixel;
 
 yconstfn color_t::Trait::IntegerType
 RGBTOBGR(YSLib::Drawing::MonoType color)
