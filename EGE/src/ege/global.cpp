@@ -388,7 +388,7 @@ _graph_setting::_init_graph_x()
 				}
 				else
 					::Sleep(1);
-			return ::DWORD(0);
+			return 0UL;
 		});
 		while(!init_finish)
 			::Sleep(1);
@@ -399,8 +399,6 @@ _graph_setting::_init_graph_x()
 
 		static egeControlBase _egeControlBase;
 
-		if(_g_initoption & INIT_RENDERMANUAL)
-			setrendermode(RENDER_MANUAL);
 		mouse_show = true;
 	});
 	window_setviewport(0, 0, dc_w, dc_h);
@@ -882,6 +880,13 @@ get_pages()
 	static std::unique_ptr<_pages> p(new _pages());
 
 	return *p;
+}
+
+int
+SetCloseHandler(CALLBACK_PROC* func)
+{
+	get_global_state().callback_close = func;
+	return grOk;
 }
 
 } // namespace ege;
