@@ -35,9 +35,9 @@ egeControlBase* egectrl_focus;
 namespace
 {
 
-::DWORD g_windowstyle(WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU
+unsigned long g_windowstyle(WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU
 	| WS_MINIMIZEBOX | WS_CLIPCHILDREN | WS_VISIBLE);
-::DWORD g_windowexstyle(WS_EX_LEFT | WS_EX_LTRREADING);
+unsigned long g_windowexstyle(WS_EX_LEFT | WS_EX_LTRREADING);
 int _g_windowpos_x(CW_USEDEFAULT), _g_windowpos_y(CW_USEDEFAULT);
 
 CALLBACK ::BOOL
@@ -196,7 +196,7 @@ _graph_setting::_getch()
 	{
 		int key;
 		EGEMSG msg;
-		::DWORD dw = GetTickCount();
+		unsigned long dw = GetTickCount();
 		do
 		{
 			key = _kbhit();
@@ -358,7 +358,7 @@ _graph_setting::_init_graph_x()
 
 	std::call_once(init_flag, [this]{
 	//	::SECURITY_ATTRIBUTES sa{};
-	//	::DWORD pid;
+	//	unsigned long pid;
 		bool init_finish{};
 
 		ui_thread = std::thread([this, &init_finish]{
@@ -370,7 +370,7 @@ _graph_setting::_init_graph_x()
 				+ ::GetSystemMetrics(SM_CYCAPTION) * 2, HWND_DESKTOP, {},
 				get_instance(), {});
 			if(!hwnd)
-				return ::DWORD(0xFFFFFFFF);
+				return 0xFFFFFFFFUL;
 			//图形初始化
 			window_dc = ::GetDC(hwnd);
 			//::ReleaseDC(hwnd, window_dc);
@@ -467,7 +467,7 @@ _graph_setting::_on_ime_control(::HWND hwnd, ::WPARAM wparam, ::LPARAM lparam)
 }
 
 void
-_graph_setting::_on_key(::UINT message, unsigned long keycode, ::LPARAM keyflag)
+_graph_setting::_on_key(unsigned message, unsigned long keycode, ::LPARAM keyflag)
 {
 	if(message == WM_KEYDOWN && keycode < MAX_KEY_VCODE)
 		keystatemap[keycode] = 1;
@@ -478,7 +478,7 @@ _graph_setting::_on_key(::UINT message, unsigned long keycode, ::LPARAM keyflag)
 }
 
 void
-_graph_setting::_on_mouse_button_up(::HWND h_wnd, ::UINT msg, ::WPARAM w_param,
+_graph_setting::_on_mouse_button_up(::HWND h_wnd, unsigned msg, ::WPARAM w_param,
 	::LPARAM l_param)
 {
 	auto* l = &mouse_state_l;
@@ -500,8 +500,8 @@ _graph_setting::_on_mouse_button_up(::HWND h_wnd, ::UINT msg, ::WPARAM w_param,
 		assert(false);
 		return;
 	}
-	mouse_lastup_x = (short int)((::UINT)l_param & 0xFFFF);
-	mouse_lastup_y = (short int)((::UINT)l_param >> 16);
+	mouse_lastup_x = (short int)((unsigned)l_param & 0xFFFF);
+	mouse_lastup_y = (short int)((unsigned)l_param >> 16);
 	*l = 0;
 	keystatemap[vk] = 0;
 	if(mouse_state_l == 0 && mouse_state_m == 0
@@ -631,8 +631,8 @@ _graph_setting::_process_ui_msg(EGEMSG& qmsg)
 		}
 	else if(qmsg.message >= WM_MOUSEFIRST && qmsg.message <= WM_MOUSELAST)
 	{
-		int x = (short int)((::UINT)qmsg.lParam & 0xFFFF),
-			y = (short int)((::UINT)qmsg.lParam >> 16);
+		int x = (short int)((unsigned)qmsg.lParam & 0xFFFF),
+			y = (short int)((unsigned)qmsg.lParam >> 16);
 
 		switch(qmsg.message)
 		{
@@ -665,12 +665,12 @@ _graph_setting::_process_ui_msg(EGEMSG& qmsg)
 }
 
 void
-_graph_setting::_push_mouse_msg(::UINT message, ::WPARAM wparam,
+_graph_setting::_push_mouse_msg(unsigned message, ::WPARAM wparam,
 	::LPARAM lparam)
 {
 	msgmouse_queue.push(EGEMSG{hwnd, message, wparam, lparam, ::GetTickCount(),
-		::UINT(mouse_state_m << 2 | mouse_state_r << 1 | mouse_state_l << 0),
-		::UINT()});
+		unsigned(mouse_state_m << 2 | mouse_state_r << 1 | mouse_state_l << 0),
+		unsigned()});
 }
 
 int
