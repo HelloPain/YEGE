@@ -1,4 +1,5 @@
 ﻿#include "ege/gapi_aa.h"
+#include "ege/gapi.h"
 #include "image.h"
 #include "global.h"
 #include <gdiplus.h>
@@ -11,11 +12,7 @@ using std::unique_ptr;
 void
 ege_enable_aa(bool enable, IMAGE* pimg)
 {
-	const auto img(CONVERT_IMAGE(pimg));
-
-	yassume(img);
-
-	img->m_aa = enable;
+	convert_image_ref(pimg).m_aa = enable;
 }
 
 
@@ -25,7 +22,7 @@ ege_line(float x1, float y1, float x2, float y2, IMAGE* pimg)
 	if(const auto img = CONVERT_IMAGE(pimg))
 	{
 		Gdiplus::Graphics graphics(img->getdc());
-		Gdiplus::Pen pen(img->m_color, img->m_linewidth);
+		Gdiplus::Pen pen(std::uint32_t(img->m_color), img->m_linewidth);
 
 		graphics.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
 		if(img->m_aa)
@@ -40,12 +37,13 @@ ege_drawpoly(int numpoints, ege_point* polypoints, IMAGE* pimg)
 	if(const auto img = CONVERT_IMAGE(pimg))
 	{
 		Gdiplus::Graphics graphics(img->getdc());
-		Gdiplus::Pen pen(img->m_color, img->m_linewidth);
+		Gdiplus::Pen pen(std::uint32_t(img->m_color), img->m_linewidth);
 
 		graphics.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
 		if(img->m_aa)
 			graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
-		graphics.DrawLines(&pen, (Gdiplus::PointF*)polypoints, numpoints);
+		graphics.DrawLines(&pen, reinterpret_cast<Gdiplus::PointF*>(polypoints),
+			numpoints);
 	}
 }
 
@@ -55,12 +53,13 @@ ege_drawcurve(int numpoints, ege_point* polypoints, IMAGE* pimg)
 	if(const auto img = CONVERT_IMAGE(pimg))
 	{
 		Gdiplus::Graphics graphics(img->getdc());
-		Gdiplus::Pen pen(img->m_color, img->m_linewidth);
+		Gdiplus::Pen pen(std::uint32_t(img->m_color), img->m_linewidth);
 
 		graphics.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
 		if(img->m_aa)
 			graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
-		graphics.DrawCurve(&pen, (Gdiplus::PointF*)polypoints, numpoints);
+		graphics.DrawCurve(&pen, reinterpret_cast<Gdiplus::PointF*>(polypoints),
+			numpoints);
 	}
 }
 
@@ -70,7 +69,7 @@ ege_rectangle(float x, float y, float w, float h, IMAGE* pimg)
 	if(const auto img = CONVERT_IMAGE(pimg))
 	{
 		Gdiplus::Graphics graphics(img->getdc());
-		Gdiplus::Pen pen(img->m_color, img->m_linewidth);
+		Gdiplus::Pen pen(std::uint32_t(img->m_color), img->m_linewidth);
 
 		graphics.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
 		if(img->m_aa)
@@ -85,7 +84,7 @@ ege_ellipse(float x, float y, float w, float h, IMAGE* pimg)
 	if(const auto img = CONVERT_IMAGE(pimg))
 	{
 		Gdiplus::Graphics graphics(img->getdc());
-		Gdiplus::Pen pen(img->m_color, img->m_linewidth);
+		Gdiplus::Pen pen(std::uint32_t(img->m_color), img->m_linewidth);
 
 		graphics.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
 		if(img->m_aa)
@@ -101,7 +100,7 @@ ege_pie(float x, float y, float w, float h, float stangle, float sweepAngle,
 	if(const auto img = CONVERT_IMAGE(pimg))
 	{
 		Gdiplus::Graphics graphics(img->getdc());
-		Gdiplus::Pen pen(img->m_color, img->m_linewidth);
+		Gdiplus::Pen pen(std::uint32_t(img->m_color), img->m_linewidth);
 
 		graphics.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
 		if(img->m_aa)
@@ -118,7 +117,7 @@ ege_arc(float x, float y, float w, float h, float stangle, float sweepAngle,
 	if(const auto img = CONVERT_IMAGE(pimg))
 	{
 		Gdiplus::Graphics graphics(img->getdc());
-		Gdiplus::Pen pen(img->m_color, img->m_linewidth);
+		Gdiplus::Pen pen(std::uint32_t(img->m_color), img->m_linewidth);
 
 		graphics.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
 		if(img->m_aa)
@@ -135,12 +134,13 @@ ege_bezier(int numpoints, ege_point* polypoints, IMAGE* pimg)
 	if(const auto img = CONVERT_IMAGE(pimg))
 	{
 		Gdiplus::Graphics graphics(img->getdc());
-		Gdiplus::Pen pen(img->m_color, img->m_linewidth);
+		Gdiplus::Pen pen(std::uint32_t(img->m_color), img->m_linewidth);
 
 		graphics.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
 		if(img->m_aa)
 			graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
-		graphics.DrawBeziers(&pen, (Gdiplus::PointF*)polypoints, numpoints);
+		graphics.DrawBeziers(&pen,
+			reinterpret_cast<Gdiplus::PointF*>(polypoints), numpoints);
 	}
 }
 
@@ -157,13 +157,13 @@ ege_fillpoly(int numpoints, ege_point* polypoints, IMAGE* pimg)
 			graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
 		if(img->m_pattern)
 			graphics.FillPolygon(img->m_pattern.get(),
-				(Gdiplus::PointF*)polypoints, numpoints);
+				reinterpret_cast<Gdiplus::PointF*>(polypoints), numpoints);
 		else
 		{
-			Gdiplus::SolidBrush brush(img->m_fillcolor);
+			Gdiplus::SolidBrush brush(std::uint32_t(img->m_fillcolor));
 
-			graphics.FillPolygon(&brush, (Gdiplus::PointF*)polypoints,
-				numpoints);
+			graphics.FillPolygon(&brush,
+				reinterpret_cast<Gdiplus::PointF*>(polypoints), numpoints);
 		}
 	}
 }
@@ -182,7 +182,7 @@ ege_fillrect(float x, float y, float w, float h, IMAGE* pimg)
 			graphics.FillRectangle(img->m_pattern.get(), x, y, w, h);
 		else
 		{
-			Gdiplus::SolidBrush brush(img->m_fillcolor);
+			Gdiplus::SolidBrush brush(std::uint32_t(img->m_fillcolor));
 
 			graphics.FillRectangle(&brush, x, y, w, h);
 		}
@@ -203,7 +203,7 @@ ege_fillellipse(float x, float y, float w, float h, IMAGE* pimg)
 			graphics.FillEllipse(img->m_pattern.get(), x, y, w, h);
 		else
 		{
-			Gdiplus::SolidBrush brush(img->m_fillcolor);
+			Gdiplus::SolidBrush brush(std::uint32_t(img->m_fillcolor));
 
 			graphics.FillEllipse(&brush, x, y, w, h);
 		}
@@ -226,7 +226,7 @@ ege_fillpie(float x, float y, float w, float h, float stangle, float sweepAngle,
 				sweepAngle);
 		else
 		{
-			Gdiplus::SolidBrush brush(img->m_fillcolor);
+			Gdiplus::SolidBrush brush(std::uint32_t(img->m_fillcolor));
 
 			graphics.FillPie(&brush, x, y, w, h, stangle, sweepAngle);
 		}
@@ -259,13 +259,13 @@ ege_setpattern_pathgradient(ege_point center, color_t centercolor, int count,
 {
 	if(const auto img = CONVERT_IMAGE(pimg))
 	{
-		const auto pbrush(new Gdiplus::PathGradientBrush(
-			(Gdiplus::PointF*)points, count, Gdiplus::WrapModeTile
-		));
+		const auto pbrush(new Gdiplus::PathGradientBrush(reinterpret_cast<
+			Gdiplus::PointF*>(points), count, Gdiplus::WrapModeTile));
 
 		pbrush->SetCenterColor(Gdiplus::Color(centercolor));
 		pbrush->SetCenterPoint(Gdiplus::PointF(center.x, center.y));
-		pbrush->SetSurroundColors((Gdiplus::Color*)pointscolor, &colcount);
+		pbrush->SetSurroundColors(
+			reinterpret_cast<Gdiplus::Color*>(pointscolor), &colcount);
 		img->m_pattern.reset(pbrush);
 	}
 }
@@ -285,7 +285,8 @@ ege_setpattern_ellipsegradient(ege_point center, color_t centercolor,
 
 		pbrush->SetCenterColor(Gdiplus::Color(centercolor));
 		pbrush->SetCenterPoint(Gdiplus::PointF(center.x, center.y));
-		pbrush->SetSurroundColors((Gdiplus::Color*)&color, &count);
+		pbrush->SetSurroundColors(&reinterpret_cast<Gdiplus::Color&>(color),
+			&count);
 		img->m_pattern.reset(pbrush);
 	}
 }
@@ -307,8 +308,8 @@ ege_setalpha(int alpha, IMAGE* pimg)
 	if(const auto img = CONVERT_IMAGE(pimg))
 	{
 		int a = alpha << 24;
-		int w = pimg->getwidth();
-		int h = pimg->getheight();
+		int w = pimg->GetWidth();
+		int h = pimg->GetHeight();
 
 		for(int y = 0; y < h; ++y)
 			for(int x = 0; x < w; ++x)
@@ -344,8 +345,8 @@ ege_puttexture(IMAGE* srcimg, ege_rect dest, IMAGE* pimg)
 	{
 		src.x = 0;
 		src.y = 0;
-		src.w = (float)srcimg->getwidth();
-		src.h = (float)srcimg->getheight();
+		src.w = srcimg->GetWidth();
+		src.h = srcimg->GetHeight();
 		ege_puttexture(srcimg, dest, src, img);
 	}
 }
