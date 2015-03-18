@@ -10,16 +10,16 @@
 #include <mutex> // for std::once_flag, std::call_once;
 
 #ifdef _WIN64
-#define ARCH "x64"
+#define ARCH L"x64"
 #else
-#define ARCH "x86"
+#define ARCH L"x86"
 #endif
 
 #define TOSTRING_(x) #x
 #define TOSTRING(x) TOSTRING_(x)
-#define GCC_VER TEXT(TOSTRING(__GNUC__)) TEXT(".") TEXT(TOSTRING(__GNUC_MINOR__)) TEXT(".") TEXT(TOSTRING(__GNUC_PATCHLEVEL__))
+#define GCC_VER TOSTRING(__GNUC__) L"." TOSTRING(__GNUC_MINOR__) L"." TOSTRING(__GNUC_PATCHLEVEL__)
 
-#define EGE_TITLE TEXT("yEGE13.04 ") TEXT("GCC") GCC_VER TEXT(ARCH)
+#define EGE_TITLE L"yEGE13.04 GCC" GCC_VER ARCH
 
 namespace ege
 {
@@ -35,8 +35,8 @@ egeControlBase* egectrl_focus;
 namespace
 {
 
-const ::TCHAR window_class_name[]{TEXT("Easy Graphics Engine")};
-const ::TCHAR window_caption[]{EGE_TITLE};
+const wchar_t window_class_name[]{L"Easy Graphics Engine"};
+const wchar_t window_caption[]{EGE_TITLE};
 
 unsigned long g_windowstyle(WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU
 	| WS_MINIMIZEBOX | WS_CLIPCHILDREN | WS_VISIBLE);
@@ -87,7 +87,7 @@ _set_initmode(int mode, int x, int y)
 }
 
 
-_graph_setting::_graph_setting(int gdriver_n, int* gmode)
+EGEApplication::EGEApplication(int gdriver_n, int* gmode)
 {
 	static std::once_flag init_flag;
 
@@ -96,23 +96,23 @@ _graph_setting::_graph_setting(int gdriver_n, int* gmode)
 
 		Gdiplus::GdiplusStartup(&g_gdiplusToken, &gdiplusStartupInput, {});
 
-		static ::WNDCLASSEX wcex;
+		static ::WNDCLASSEXW wcex;
 
 		wcex.cbSize = sizeof(wcex);
 		wcex.style = CS_HREDRAW | CS_VREDRAW;
 		wcex.lpfnWndProc = getProcfunc();
 		wcex.cbClsExtra = 0;
 		wcex.cbWndExtra = 0;
-		wcex.hInstance = get_instance();
+		wcex.hInstance = GetInstance();
 		wcex.hIcon = ::LoadIcon({}, IDI_WINLOGO);
 		wcex.hCursor = ::LoadCursor({}, IDC_ARROW);
-		wcex.hbrBackground = (::HBRUSH)(COLOR_WINDOW + 1);
+		wcex.hbrBackground = ::HBRUSH(COLOR_WINDOW + 1);
 		wcex.lpszClassName = window_class_name;
 
 		const auto load([&](::LPCTSTR rt){
 			::HICON hico = {};
 
-			EnumResourceNames(get_instance(), rt, EnumResNameProc,
+			EnumResourceNames(GetInstance(), rt, EnumResNameProc,
 				::LONG_PTR(&hico));
 			if(hico)
 				wcex.hIcon = hico;
@@ -127,14 +127,14 @@ _graph_setting::_graph_setting(int gdriver_n, int* gmode)
 			if(load(RT_ICON))
 				break;
 		}while(0);
-		::RegisterClassEx(&wcex);
+		::RegisterClassExW(&wcex);
 	});
 
-	assert(gdriver_n);
+	yassume(gdriver_n);
 
 	if(gdriver_n == TRUECOLORSIZE)
 	{
-		assert(gmode);
+		yassume(gmode);
 		::RECT rect;
 
 		::GetWindowRect(GetDesktopWindow(), &rect);
@@ -146,7 +146,7 @@ _graph_setting::_graph_setting(int gdriver_n, int* gmode)
 			dc_h = rect.bottom;
 	}
 }
-_graph_setting::~_graph_setting()
+EGEApplication::~EGEApplication()
 {
 	if(ui_thread.joinable())
 		ui_thread.join();
@@ -154,19 +154,19 @@ _graph_setting::~_graph_setting()
 }
 
 bool
-_graph_setting::_is_run() const
+EGEApplication::_is_run() const
 {
 	return ui_thread.joinable();
 }
 
 bool
-_graph_setting::_is_window_exit() const
+EGEApplication::_is_window_exit() const
 {
 	return !_is_run();
 }
 
 void
-_graph_setting::_flush_key_mouse(bool key)
+EGEApplication::_flush_key_mouse(bool key)
 {
 	auto& q(key ? msgkey_queue : msgmouse_queue);
 
@@ -176,7 +176,7 @@ _graph_setting::_flush_key_mouse(bool key)
 }
 
 int
-_graph_setting::_get_input(get_input_op op)
+EGEApplication::_get_input(get_input_op op)
 {
 	if(_is_window_exit())
 		return grNoInitGraph;
@@ -201,7 +201,7 @@ _graph_setting::_get_input(get_input_op op)
 }
 
 int
-_graph_setting::_getflush()
+EGEApplication::_getflush()
 {
 	int lastkey = 0;
 
@@ -219,7 +219,7 @@ _graph_setting::_getflush()
 }
 
 key_msg
-_graph_setting::_getkey()
+EGEApplication::_getkey()
 {
 	key_msg ret{0, key_msg_none, 0};
 
@@ -252,7 +252,7 @@ _graph_setting::_getkey()
 }
 
 int
-_graph_setting::_getkey_p()
+EGEApplication::_getkey_p()
 {
 	while(!msgkey_queue.empty())
 	{
@@ -276,7 +276,7 @@ _graph_setting::_getkey_p()
 }
 
 mouse_msg
-_graph_setting::_getmouse()
+EGEApplication::_getmouse()
 {
 	auto mmsg = mouse_msg();
 
@@ -342,7 +342,7 @@ _graph_setting::_getmouse()
 }
 
 void
-_graph_setting::_init_graph_x()
+EGEApplication::_init_graph_x()
 {
 	static std::once_flag init_flag;
 
@@ -353,12 +353,12 @@ _graph_setting::_init_graph_x()
 
 		ui_thread = std::thread([this, &init_finish]{
 			//执行应用程序初始化
-			hwnd = ::CreateWindowEx(g_windowexstyle, window_class_name,
+			hwnd = ::CreateWindowExW(g_windowexstyle, window_class_name,
 				window_caption, g_windowstyle & ~WS_VISIBLE, _g_windowpos_x,
 				_g_windowpos_y, dc_w + ::GetSystemMetrics(SM_CXFRAME) * 2,
 				dc_h + ::GetSystemMetrics(SM_CYFRAME)
 				+ ::GetSystemMetrics(SM_CYCAPTION) * 2, HWND_DESKTOP, {},
-				get_instance(), {});
+				GetInstance(), {});
 			if(!hwnd)
 				return 0xFFFFFFFFUL;
 			//图形初始化
@@ -400,7 +400,7 @@ _graph_setting::_init_graph_x()
 }
 
 int
-_graph_setting::_keystate(int key)
+EGEApplication::_keystate(int key)
 {
 	if(key < 0 || key >= MAX_KEY_VCODE)
 		return -1;
@@ -410,13 +410,13 @@ _graph_setting::_keystate(int key)
 }
 
 bool
-_graph_setting::_mousemsg()
+EGEApplication::_mousemsg()
 {
 	return _is_window_exit() ? false : bool(_peekmouse().hwnd);
 }
 
 void
-_graph_setting::_on_destroy()
+EGEApplication::_on_destroy()
 {
 	assert(_is_run());
 
@@ -430,7 +430,7 @@ _graph_setting::_on_destroy()
 }
 
 void
-_graph_setting::_on_ime_control(::HWND hwnd, ::WPARAM wparam, ::LPARAM lparam)
+EGEApplication::_on_ime_control(::HWND hwnd, ::WPARAM wparam, ::LPARAM lparam)
 {
 	if(wparam == IMC_SETSTATUSWINDOWPOS)
 	{
@@ -445,7 +445,7 @@ _graph_setting::_on_ime_control(::HWND hwnd, ::WPARAM wparam, ::LPARAM lparam)
 }
 
 void
-_graph_setting::_on_key(unsigned message, unsigned long keycode, ::LPARAM keyflag)
+EGEApplication::_on_key(unsigned message, unsigned long keycode, ::LPARAM keyflag)
 {
 	if(message == WM_KEYDOWN && keycode < MAX_KEY_VCODE)
 		keystatemap[keycode] = 1;
@@ -456,7 +456,7 @@ _graph_setting::_on_key(unsigned message, unsigned long keycode, ::LPARAM keyfla
 }
 
 void
-_graph_setting::_on_mouse_button_up(::HWND h_wnd, unsigned msg, ::WPARAM w_param,
+EGEApplication::_on_mouse_button_up(::HWND h_wnd, unsigned msg, ::WPARAM w_param,
 	::LPARAM l_param)
 {
 	auto* l = &mouse_state_l;
@@ -490,7 +490,7 @@ _graph_setting::_on_mouse_button_up(::HWND h_wnd, unsigned msg, ::WPARAM w_param
 }
 
 void
-_graph_setting::_on_paint(::HWND hwnd)
+EGEApplication::_on_paint(::HWND hwnd)
 {
 	::PAINTSTRUCT ps;
 	::HDC dc(::BeginPaint(hwnd, &ps));
@@ -499,7 +499,7 @@ _graph_setting::_on_paint(::HWND hwnd)
 }
 
 void
-_graph_setting::_on_setcursor(::HWND hwnd)
+EGEApplication::_on_setcursor(::HWND hwnd)
 {
 	if(mouse_show)
 		::SetCursor(::LoadCursor({}, IDC_ARROW));
@@ -519,7 +519,7 @@ _graph_setting::_on_setcursor(::HWND hwnd)
 }
 
 int
-_graph_setting::_peekkey()
+EGEApplication::_peekkey()
 {
 	while(!msgkey_queue.empty())
 	{
@@ -553,7 +553,7 @@ _graph_setting::_peekkey()
 }
 
 int
-_graph_setting::_peekallkey(int flag)
+EGEApplication::_peekallkey(int flag)
 {
 	while(!msgkey_queue.empty())
 	{
@@ -578,7 +578,7 @@ _graph_setting::_peekallkey(int flag)
 }
 
 EGEMSG
-_graph_setting::_peekmouse()
+EGEApplication::_peekmouse()
 {
 	if(msgmouse_queue.empty())
 		_update_if_necessary();
@@ -588,7 +588,7 @@ _graph_setting::_peekmouse()
 }
 
 void
-_graph_setting::_process_ui_msg(EGEMSG& qmsg)
+EGEApplication::_process_ui_msg(EGEMSG& qmsg)
 {
 	if(qmsg.flag & 1)
 		return;
@@ -643,7 +643,7 @@ _graph_setting::_process_ui_msg(EGEMSG& qmsg)
 }
 
 void
-_graph_setting::_push_mouse_msg(unsigned message, ::WPARAM wparam,
+EGEApplication::_push_mouse_msg(unsigned message, ::WPARAM wparam,
 	::LPARAM lparam)
 {
 	msgmouse_queue.push(EGEMSG{hwnd, message, wparam, lparam, ::GetTickCount(),
@@ -652,14 +652,14 @@ _graph_setting::_push_mouse_msg(unsigned message, ::WPARAM wparam,
 }
 
 int
-_graph_setting::_show_mouse(bool bShow)
+EGEApplication::_show_mouse(bool bShow)
 {
 	std::swap(bShow, mouse_show);
 	return bShow;
 }
 
 void
-_graph_setting::_update()
+EGEApplication::_update()
 {
 	if(!_is_window_exit())
 	{
@@ -697,24 +697,24 @@ _graph_setting::_update()
 }
 
 void
-_graph_setting::_update_if_necessary()
+EGEApplication::_update_if_necessary()
 {
 	if(update_mark_count <= 0)
 		_update();
 }
 
 void
-_graph_setting::_update_GUI()
+EGEApplication::_update_GUI()
 {
 	using namespace std;
 	using namespace placeholders;
 
-	msgkey_queue.process(bind(&_graph_setting::_process_ui_msg, this, _1));
-	msgmouse_queue.process(bind(&_graph_setting::_process_ui_msg, this, _1));
+	msgkey_queue.process(bind(&EGEApplication::_process_ui_msg, this, _1));
+	msgmouse_queue.process(bind(&EGEApplication::_process_ui_msg, this, _1));
 }
 
 bool
-_graph_setting::_waitdealmessage()
+EGEApplication::_waitdealmessage()
 {
 	if(update_mark_count < UPDATE_MAX_CALL)
 	{
@@ -728,7 +728,7 @@ _graph_setting::_waitdealmessage()
 }
 
 void
-_graph_setting::_window_create(msg_createwindow& msg)
+EGEApplication::_window_create(msg_createwindow& msg)
 {
 	msg.hwnd = ::CreateWindowExW(msg.exstyle, msg.classname, {},
 		msg.style, 0, 0, 0, 0, getHWnd(), ::HMENU(msg.id), getHInstance(), {});
@@ -737,7 +737,7 @@ _graph_setting::_window_create(msg_createwindow& msg)
 }
 
 void
-_graph_setting::_window_destroy(msg_createwindow& msg)
+EGEApplication::_window_destroy(msg_createwindow& msg)
 {
 	if(msg.hwnd)
 		::DestroyWindow(msg.hwnd);
@@ -747,7 +747,7 @@ _graph_setting::_window_destroy(msg_createwindow& msg)
 
 
 _pages::_pages()
-	: gstate(get_global_state()), active_dc(gstate._get_window_dc())
+	: gstate(FetchEGEApplication()), active_dc(gstate._get_window_dc())
 {
 	check_page(0);
 	active_dc = img_page[0]->getdc();
@@ -833,11 +833,11 @@ _pages::update()
 }
 
 
-_graph_setting&
-get_global_state(int gdriver_n, int* gmode)
+EGEApplication&
+FetchEGEApplication(int gdriver_n, int* gmode)
 {
-	static std::unique_ptr<_graph_setting>
-		p(new _graph_setting(gdriver_n, gmode));
+	static std::unique_ptr<EGEApplication>
+		p(new EGEApplication(gdriver_n, gmode));
 
 	return *p;
 }
@@ -853,7 +853,7 @@ get_pages()
 int
 SetCloseHandler(CALLBACK_PROC* func)
 {
-	get_global_state().callback_close = func;
+	FetchEGEApplication().callback_close = func;
 	return grOk;
 }
 
