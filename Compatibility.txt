@@ -130,6 +130,7 @@ thread_queue 类模板使用 std::mutex 、 std::lock_guard 和 std::deque 实�
 实现质量(QoI)
 ----
 EGE 库中加入 -Wall -Wextra -Wmissing-include-dirs -Wzero-as-null-pointer-constant -pedantic-errors 保证无错误和警告。
+EGE 代码 -Wold-style-cast 保证无警告（因为依赖库头文件问题没有加入此选项）。
 其它项目中加入 -Wall -Wextra -pedantic 保证无警告。
 
 非外部依赖项代码风格和格式
