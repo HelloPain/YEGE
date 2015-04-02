@@ -126,6 +126,7 @@ thread_queue 类模板使用 std::mutex 、 std::lock_guard 和 std::deque 实�
 提升 flushkey 和 flushmouse 函数的性能。
 避免直接使用 malloc 和 free 。
 使用 C++11 标准库 <chrono> 和 YSLib 提供的包装接口实现其它时间操作。
+简化绘图 API 实现。
 
 实现质量(QoI)
 ----
