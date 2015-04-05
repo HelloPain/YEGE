@@ -164,9 +164,6 @@ EnumResNameProc(::HMODULE hModule, ::LPCTSTR, ::LPTSTR lpszName,
 
 } // unnamed namespace;
 
-float
-_get_FPS(int);
-
 void
 _set_initmode(int mode, int x, int y)
 {
