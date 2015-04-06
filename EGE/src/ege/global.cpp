@@ -116,7 +116,7 @@ wndproc(::HWND hWnd, ::UINT message, ::WPARAM wParam, ::LPARAM lParam)
 			app._push_mouse_msg(message, wParam, lParam);
 		break;
 	case WM_SETCURSOR:
-		app._on_setcursor(hWnd);
+		::SetCursor(app._on_setcursor(hWnd));
 		return TRUE;
 	case WM_USER + 1:
 		EGEApplication::_window_handle_wm_user_1(lParam, wParam);
@@ -582,12 +582,10 @@ EGEApplication::_on_paint(::HWND hwnd)
 	::EndPaint(hwnd, &ps);
 }
 
-void
+::HCURSOR
 EGEApplication::_on_setcursor(::HWND hwnd)
 {
-	if(mouse_show)
-		::SetCursor(::LoadCursor({}, IDC_ARROW));
-	else
+	if(!mouse_show)
 	{
 		::RECT rect;
 		::POINT pt;
@@ -596,10 +594,9 @@ EGEApplication::_on_setcursor(::HWND hwnd)
 		::ScreenToClient(hwnd, &pt);
 		::GetClientRect(hwnd, &rect);
 		if(pt.x >= rect.left && pt.x < rect.right && pt.y >= rect.top && pt.y <= rect.bottom)
-			::SetCursor({});
-		else
-			::SetCursor(::LoadCursor({}, IDC_ARROW));
+			return {};
 	}
+	return ::LoadCursor({}, IDC_ARROW);
 }
 
 int
