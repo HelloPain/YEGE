@@ -7,6 +7,7 @@
 #include <memory> // for std::unique_ptr;
 #include <functional> // for std::bind;
 #include <mutex> // for std::once_flag, std::call_once;
+#include <atomic>
 #include "head.h"
 
 #ifdef _WIN64
@@ -29,14 +30,12 @@ using namespace Host;
 namespace
 {
 
-const wchar_t window_class_name[32]
-	{L"Easy Graphics Engine"};
-const wchar_t window_caption[128]{EGE_TITLE};
-
+const wchar_t window_class_name[]{L"Easy Graphics Engine"};
+const wchar_t window_caption[]{EGE_TITLE};
 int _g_initoption(INIT_DEFAULT);
 
 ::LRESULT CALLBACK
-wndproc(::HWND hWnd, ::UINT message, ::WPARAM wParam, ::LPARAM lParam)
+wndproc(::HWND hWnd, unsigned message, ::WPARAM wParam, ::LPARAM lParam)
 {
 	auto& app(FetchEGEApplication());
 
@@ -44,12 +43,6 @@ wndproc(::HWND hWnd, ::UINT message, ::WPARAM wParam, ::LPARAM lParam)
 	{
 	case WM_PAINT:
 		app._on_paint(hWnd);
-		break;
-	case WM_CLOSE:
-		if(app.callback_close)
-			app.callback_close();
-		else
-			return ::DefWindowProc(hWnd, message, wParam, lParam);
 		break;
 	case WM_ERASEBKGND:
 		return TRUE;
@@ -61,8 +54,8 @@ wndproc(::HWND hWnd, ::UINT message, ::WPARAM wParam, ::LPARAM lParam)
 		break;
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONDBLCLK:
-		app.mouse_lastclick_x = short(lParam & 0xFFFF);
-		app.mouse_lastclick_y = short(::UINT(lParam) >> 16);
+		app.mouse_lastclick_x = short(unsigned(lParam) & 0xFFFF);
+		app.mouse_lastclick_y = short(unsigned(lParam) >> 16);
 		app.keystatemap[VK_LBUTTON] = 1;
 		::SetCapture(hWnd);
 		app.mouse_state_l = 1;
@@ -71,8 +64,8 @@ wndproc(::HWND hWnd, ::UINT message, ::WPARAM wParam, ::LPARAM lParam)
 		break;
 	case WM_MBUTTONDOWN:
 	case WM_MBUTTONDBLCLK:
-		app.mouse_lastclick_x = short(lParam & 0xFFFF);
-		app.mouse_lastclick_y = short(::UINT(lParam) >> 16);
+		app.mouse_lastclick_x = short(unsigned(lParam) & 0xFFFF);
+		app.mouse_lastclick_y = short(unsigned(lParam) >> 16);
 		app.keystatemap[VK_MBUTTON] = 1;
 		::SetCapture(hWnd);
 		app.mouse_state_m = 1;
@@ -81,8 +74,8 @@ wndproc(::HWND hWnd, ::UINT message, ::WPARAM wParam, ::LPARAM lParam)
 		break;
 	case WM_RBUTTONDOWN:
 	case WM_RBUTTONDBLCLK:
-		app.mouse_lastclick_x = short(lParam & 0xFFFF);
-		app.mouse_lastclick_y = short(::UINT(lParam) >> 16);
+		app.mouse_lastclick_x = short(unsigned(lParam) & 0xFFFF);
+		app.mouse_lastclick_y = short(unsigned(lParam) >> 16);
 		app.keystatemap[VK_RBUTTON] = 1;
 		::SetCapture(hWnd);
 		app.mouse_state_r = 1;
@@ -95,8 +88,8 @@ wndproc(::HWND hWnd, ::UINT message, ::WPARAM wParam, ::LPARAM lParam)
 		app._on_mouse_button_up(hWnd, message, wParam, lParam);
 		break;
 	case WM_MOUSEMOVE:
-		app.mouse_last_x = short(lParam & 0xFFFF);
-		app.mouse_last_y = short(::UINT(lParam) >> 16);
+		app.mouse_last_x = short(unsigned(lParam) & 0xFFFF);
+		app.mouse_last_y = short(unsigned(lParam) >> 16);
 		if(hWnd == app._get_hwnd() && (app.mouse_lastup_x
 			!= app.mouse_last_x || app.mouse_lastup_y
 			!= app.mouse_last_y))
@@ -104,7 +97,8 @@ wndproc(::HWND hWnd, ::UINT message, ::WPARAM wParam, ::LPARAM lParam)
 		break;
 	case WM_MOUSEWHEEL:
 		{
-			::POINT pt{short(lParam & 0xFFFF), short(::UINT(lParam) >> 16)};
+			::POINT pt{short(unsigned(lParam) & 0xFFFF),
+				short(unsigned(lParam) >> 16)};
 
 			::ScreenToClient(app._get_hwnd(), &pt);
 			app.mouse_last_x = pt.x;
@@ -119,7 +113,6 @@ wndproc(::HWND hWnd, ::UINT message, ::WPARAM wParam, ::LPARAM lParam)
 		::SetCursor(app._on_setcursor(hWnd));
 		return TRUE;
 	case WM_USER + 1:
-		EGEApplication::_window_handle_wm_user_1(lParam, wParam);
 		break;
 	case WM_USER + 2:
 		::SetFocus(::HWND(lParam));
@@ -137,7 +130,6 @@ bool _g_initcall;
 int update_mark_count; //更新标记
 egeControlBase* egectrl_root;
 egeControlBase* egectrl_focus;
-
 
 namespace
 {
@@ -222,7 +214,7 @@ EGEApplication::EGEApplication(int gdriver_n, int* gmode)
 	}while(0);
 	::RegisterClassExW(&wcex);
 
-	assert(gdriver_n != 0);
+	yassume(gdriver_n);
 
 	if(gdriver_n == TRUECOLORSIZE)
 	{
@@ -852,6 +844,7 @@ EGEApplication::_window_handle_wm_user_1(::LPARAM l, ::WPARAM w)
 _pages::_pages()
 	: gstate(FetchEGEApplication()), active_dc(gstate._get_window_dc())
 {
+	yassume(active_dc);
 	check_page(0);
 	active_dc = img_page[0]->getdc();
 	imgtarget = img_page[active_page].get();

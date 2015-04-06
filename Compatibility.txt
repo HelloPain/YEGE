@@ -202,7 +202,6 @@ LRES
 LoadCu
 LoadI
 LoadRes
-ImmSetCompositionWindow
 MCI_STATUS_PARMS
 MCIE
 MessageBox
