@@ -483,12 +483,10 @@ EGEApplication::_on_paint(::HWND hwnd)
 	::EndPaint(hwnd, &ps);
 }
 
-void
+::HCURSOR
 EGEApplication::_on_setcursor(::HWND hwnd)
 {
-	if(mouse_show)
-		::SetCursor(::LoadCursor({}, IDC_ARROW));
-	else
+	if(!mouse_show)
 	{
 		::RECT rect;
 		::POINT pt;
@@ -497,10 +495,9 @@ EGEApplication::_on_setcursor(::HWND hwnd)
 		::ScreenToClient(hwnd, &pt);
 		::GetClientRect(hwnd, &rect);
 		if(pt.x >= rect.left && pt.x < rect.right && pt.y >= rect.top && pt.y <= rect.bottom)
-			::SetCursor({});
-		else
-			::SetCursor(::LoadCursor({}, IDC_ARROW));
+			return {};
 	}
+	return ::LoadCursor({}, IDC_ARROW);
 }
 
 int
