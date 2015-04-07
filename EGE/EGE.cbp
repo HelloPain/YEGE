@@ -51,7 +51,7 @@
 					<Add option="-D_GLIBCXX_DEBUG" />
 					<Add option="-D_GLIBCXX_DEBUG_PEDANTIC" />
 					<Add option="-DYB_DLL" />
-					<Add option="-DYF_DLL" />				
+					<Add option="-DYF_DLL" />
 				</Compiler>
 				<Linker>
 					<Add library="YFrameworkd" />
@@ -144,7 +144,6 @@
 		<Unit filename="include/ege/label.h" />
 		<Unit filename="include/ege/mac.h" />
 		<Unit filename="include/ege/music.h" />
-		<Unit filename="include/ege/proc.h" />
 		<Unit filename="include/ege/pushtarget.h" />
 		<Unit filename="include/ege/random.h" />
 		<Unit filename="include/ege/sys_edit.h" />
