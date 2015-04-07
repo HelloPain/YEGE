@@ -3,6 +3,7 @@
 
 #include "head.h" // for unique_ptr, etc;
 #include "ege/viewport.h"
+#include "ege/windows.h"
 #if YEGE_Use_YSLib
 #	include "ege/color.h"
 #else
@@ -15,9 +16,6 @@
 namespace ege
 {
 
-#if YEGE_Use_YSLib
-using platform_ex::ScreenBuffer;
-
 inline Size
 ToSize(int w, int h)
 {
@@ -25,21 +23,13 @@ ToSize(int w, int h)
 		throw std::invalid_argument("ege::ToSize");
 	return {w, h};
 }
-#endif
 
 
 // 定义图像对象
 class IMAGE
 {
 private:
-#if YEGE_Use_YSLib
 	ScreenBuffer sbuf;
-#else
-	::HBITMAP m_hBmp;
-	int m_width;
-	int m_height;
-	unsigned long* m_pBuffer;
-#endif
 	::HDC m_hDC;
 
 public:
@@ -57,10 +47,8 @@ public:
 	IMAGE();
 	IMAGE(int, int);
 	IMAGE(::HDC, int, int);
-#if YEGE_Use_YSLib
 	IMAGE(const Size&);
 	IMAGE(::HDC, const Size&);
-#endif
 	IMAGE(const IMAGE&);
 	IMAGE(IMAGE&&) ynothrow;
 	~IMAGE();
@@ -68,29 +56,11 @@ public:
 	IMAGE&
 	operator=(IMAGE) ynothrow;
 
-#if YEGE_Use_YSLib
 	DefGetter(const ynothrow, ::HBITMAP, Bitmap, sbuf.GetNativeHandle())
-	DefGetterMem(const ynothrow, Pixel*, BufferPtr, sbuf)
+	DefGetterMem(const ynothrow, BitmapPtr, BufferPtr, sbuf)
 	DefGetter(const ynothrow, SDst, Height, GetSize().Height)
 	DefGetterMem(const ynothrow, const Size&, Size, sbuf)
 	DefGetter(const ynothrow, SDst, Width, GetSize().Width)
-#else
-	::HBITMAP
-	GetBitmap() const ynothrow
-	{
-		return m_hBmp;
-	}
-	int
-	GetWidth() const ynothrow
-	{
-		return m_width;
-	}
-	int
-	GetHeight() const ynothrow
-	{
-		return m_height;
-	}
-#endif
 
 	void
 	SetViewport(int, int, int, int, int);
@@ -112,14 +82,15 @@ private:
 	Refresh(::HBITMAP);
 
 public:
-#if YEGE_Use_YSLib
 	unsigned long*
 	getbuffer() const
 	{
+#if YEGE_Use_YSLib
 		static_assert(sizeof(unsigned long) == sizeof(YSLib::Drawing::Pixel),
 			"");
 		static_assert(
 			yalignof(unsigned long) == yalignof(YSLib::Drawing::Pixel), "");
+#endif
 
 		return reinterpret_cast<unsigned long*>(sbuf.GetBufferPtr());
 	}
@@ -131,22 +102,6 @@ public:
 	{
 		return Resize(ToSize(width, height));
 	}
-#else
-	unsigned long*
-	getbuffer() const
-	{
-		return m_pBuffer;
-	}
-
-	unsigned long*
-	GetBufferPtr() const
-	{
-		return getbuffer();
-	}
-
-	int
-	Resize(int, int);
-#endif
 
 #if YEGE_Use_YSLib
 	graphics_errors
